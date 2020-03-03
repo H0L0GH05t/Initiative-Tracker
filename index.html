@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initiative Tracker</title>
+</head>
+<body>
+    <input hidden="true" type="text" id="count" value="0">
+    <h1>Initiative Tracker</h1>
+    <hr/>
+    <div id="players">
+    </div>
+    <div id="templates" hidden=true>
+        <input type="radio" id="temp" class="player" name="player" value="Name">
+        <label class="player" for="temp">Name</label><br>
+    </div>
+    <div id="add-player">
+        <hr/>
+        <input type="text" id="player-name" placeholder="Enter Name">
+        <input type="button" id="add-button" value="Add">
+        <input type="button" id="del-button" value="Delete">
+    </div>
+
+    <script>
+        document.getElementById("add-button").onclick = function() {addPlayer()};
+        document.getElementById("del-button").onclick = function() {deletePlayers()};
+
+        function addPlayer() {
+            // Find necessary elements
+            var nameBox = document.getElementById("player-name");
+            var countElement = document.getElementById("count");
+            var countVal = parseInt(countElement.getAttribute("value")) +1;
+
+            // Create container for new player
+            var container = document.createElement("div");
+            
+            // Get new player id number and name
+            var playerId = "player-" + countVal.toString();
+            var nameBoxVal = nameBox.value;
+
+            // Get all descendent template elements of ancestor templates div
+            var ancestor = document.getElementById('templates'), 
+                descendents = ancestor.getElementsByTagName('*'); 
+            
+            var i, e;
+            for (i = 0; i < descendents.length; ++i) {
+                e = descendents[i];
+
+                // Clone template element
+                var cln = e.cloneNode(true);
+                cln.setAttribute('class', 'player');
+
+                // Set unique id and value player-name text for clones
+                if (cln.tagName === 'INPUT') {
+                    cln.setAttribute('id', playerId);
+                    cln.setAttribute('value', nameBoxVal);
+                } else if (cln.tagName === 'LABEL') {
+                    cln.setAttribute('for', playerId);
+                    cln.innerHTML = nameBoxVal;
+
+                    // Set onclick event for new player label
+                    cln.onclick = function() {highlightPlayer(this)};
+                }
+                
+                // Add new elements to new player container
+                container.appendChild(cln);
+                container.setAttribute('class', 'player');
+                container.setAttribute('name', nameBoxVal);
+                container.setAttribute('id', playerId);
+            }
+            
+            // Add new player container into players div
+            document.getElementById("players").appendChild(container);
+            
+            // Update count
+            countElement.setAttribute("value", countVal.toString());
+
+            // Set onclick event for new player container
+            //container.onclick = function() {highlightPlayer(this)};
+
+            // Reset text box
+            nameBox.value = '';
+        }
+
+        function highlightPlayer(element){
+            // Toggle highlight in red
+            if (element.parentElement.hasAttribute('style')){
+                element.parentElement.removeAttribute('style');
+            } else {
+                element.parentElement.style.backgroundColor = "red";
+            }
+
+            // TODO: grey out delete button when nothing is highlighted
+        }
+
+        function deletePlayers() {
+            highlightedElements = document.querySelectorAll('[style]');
+
+            var i;
+            for (i = 0; i < highlightedElements.length; i++) {
+                // Delete the highlighted player(s)
+                console.log('Deleting player: ' + highlightedElements[i].getAttribute('name'));
+                document.getElementById(highlightedElements[i].getAttribute('id')).remove();
+            }
+            // TODO: loop through player divs and reset playerIds
+        }
+
+        // TODO: add function to allow drag and drop of names
+        // TODO: add start button that sets current turn header to playerName
+        // TODO: add next turn button that changes current turn header and 
+        //       pointer in list to next playerName in initiative order
+        // TODO: add player status indicator drop down
+    </script>
+</body>
+</html>
